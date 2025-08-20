@@ -1,0 +1,4 @@
+#config.py
+DB_PATH = 'todo.db'
+TOKEN = '7627030852:AAGvDRjERN9BorL9FQ70qbq-kjUOy6Mi0mo'
+CHAT_ID = '7058970418'

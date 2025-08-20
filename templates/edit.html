@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑任务 - 待办事项管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .form-section {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #ff9800;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .task-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .task-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .task-meta {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .priority-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .priority-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ 编辑任务</h1>
+            <p>修改任务详细信息</p>
+        </div>
+        
+        <div class="form-section">
+            {% if task %}
+            <div class="task-info">
+                <h3>当前任务信息</h3>
+                <div class="task-meta">
+                    <strong>描述:</strong> {{ task.description }}
+                    <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+                    <br><br>
+                    <strong>优先级:</strong>
+                    {% if task.priority == 'high' %}
+                    高优先级
+                    {% elif task.priority == 'medium' %}
+                    中优先级
+                    {% else %}
+                    低优先级
+                    {% endif %}
+                    <br>
+                    <strong>创建时间:</strong> {{ task.created_at[:19].replace('T', ' ') }}<br>
+                    {% if task.updated_at != task.created_at %}
+                    <strong>最后更新:</strong> {{ task.updated_at[:19].replace('T', ' ') }}<br>
+                    {% endif %}
+                    {% if task.due_time %}
+                    <strong>截止时间:</strong> {{ task.due_time[:19].replace('T', ' ') }}<br>
+                    {% endif %}
+                    <strong>状态:</strong> {% if task.completed %}已完成{% else %}待完成{% endif %}
+                </div>
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="description">任务描述</label>
+                    <input type="text" id="description" name="description" class="form-control" 
+                           value="{{ task.description }}" required placeholder="输入任务描述...">
+                </div>
+               
+                <div class="form-group">
+                    <label for="priority">优先级</label>
+                    <select id="priority" name="priority" class="form-control">
+                        <option value="high" {% if task.priority == 'high' %}selected{% endif %}>高</option>
+                        <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>中</option>
+                        <option value="low" {% if task.priority == 'low' %}selected{% endif %}>低</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="due_time">截止时间</label>
+                    <input type="datetime-local" id="due_time" name="due_time" class="form-control"
+                           {% if task.due_time %}value="{{ task.due_time[:19] }}"{% endif %}>
+                    <small style="color: #666; margin-top: 5px; display: block;">留空表示移除截止时间</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 保存修改</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">↩️ 返回列表</a>
+                </div>
+            </form>
+            {% else %}
+            <div class="task-info">
+                <h3 style="color: #f44336;">❌ 错误</h3>
+                <p>找不到指定的任务，可能已被删除。</p>
+            </div>
+            <div class="form-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">↩️ 返回列表</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

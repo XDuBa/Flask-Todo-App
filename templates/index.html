@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .add-task-form {
+            padding: 30px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        
+        .btn-success {
+            background: #2196F3;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-success:hover {
+            background: #1976D2;
+        }
+        
+        .tasks-section {
+            padding: 30px;
+        }
+        
+        .task-item {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .task-completed {
+            opacity: 0.7;
+            background: #f0f0f0;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .task-description {
+            flex: 1;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .task-completed .task-description {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .priority-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .priority-low {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .task-dates {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .no-tasks {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-size: 18px;
+        }
+        
+        .stats-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        
+        .stats-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .due-time {
+            color: #ff5722;
+            font-weight: bold;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/statistics" class="stats-link">📊 统计</a>
+            <h1>📝 待办事项管理</h1>
+            <p>高效管理您的日常任务</p>
+        </div>
+        
+        <div class="add-task-form">
+            <h2>添加新任务</h2>
+            <form method="POST" action="/add">
+                <div class="form-group">
+                    <label for="description">任务描述</label>
+                    <input type="text" id="description" name="description" class="form-control" required placeholder="输入任务描述...">
+                </div>
+                <div clas="form-group">
+                    <label for="priority">优先级</label>
+                    <select id="priority" name="priority" class="form-control">
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="due_time">截止时间</label>
+                    <input type="datetime-local" id="due_time" name="due_time" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">添加任务</button>
+            </form>
+        </div>
+        
+        <div class="tasks-section">
+            <h2>任务列表</h2>
+            {% if tasks %}
+                {% for task in tasks %}
+                <div class="task-item {% if task.completed %}task-completed{% endif %}">
+                    <div class="task-header">
+                        <div class="task-description">{{ task.description }}</div>
+                        <div class="task-priority priority-{{ task.priority }}">
+                            {% if task.priority == 'high' %}
+                            高优先级
+                            {% elif task.priority == 'medium' %}
+                            中优先级
+                            {% else %}
+                            低优先级
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if task.due_time %}
+                    <div class="due-time">📅 截止时间: {{ task.due_time[:19].replace('T', ' ') }}</div>
+                    {% endif %}
+                    
+                    <div class="task-meta">
+                        <div class="task-dates">
+                            创建: {{ task.created_at[:19].replace('T', ' ') }}
+                            {% if task.updated_at != task.created_at %}
+                            | 更新: {{ task.updated_at[:19].replace('T', ' ') }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="task-actions">
+                            {% if not task.completed %}
+                            <form method="POST" action="/complete/{{ task.id }}" style="display: inline;">
+                                <button type="submit" class="btn btn-success">✓ 完成</button>
+                            </form>
+                            {% endif %}
+                            
+                            <a href="/edit/{{ task.id }}" class="btn btn-warning">✏️ 编辑</a>
+                            
+                            <form method="POST" action="/delete/{{ task.id }}" style="display: inline;" 
+                                  onsubmit="return confirm('确定要删除这个任务吗？')">
+                                <button type="submit" class="btn btn-danger">🗑️ 删除</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-tasks">
+                    <h3>🎉 暂无任务</h3>
+                    <p>添加一个新任务开始使用吧！</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
